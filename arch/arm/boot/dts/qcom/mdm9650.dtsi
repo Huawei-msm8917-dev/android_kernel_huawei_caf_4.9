@@ -1,4 +1,4 @@
-/* Copyright (c) 2015-2018, The Linux Foundation. All rights reserved.
+/* Copyright (c) 2015-2017, The Linux Foundation. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 and
@@ -42,7 +42,7 @@
 		};
 		mss_mem: mss_region@88000000 {
 			compatible = "removed-dma-pool";
-			no-map-fixup;
+			no-map;
 			reg = <0x88000000 0x6E00000>;
 			label = "mss_mem";
 		};
@@ -157,7 +157,6 @@
 					"gpll0_mss_clk";
 
 		vdd_cx-supply = <&pmd9650_s5_level>;
-		interrupts = <0 24 1>;
 		vdd_cx-voltage = <RPM_SMD_REGULATOR_LEVEL_TURBO>;
 		vdd_mx-supply = <&pmd9650_l9_level>;
 		vdd_pll-supply = <&pmd9650_l5>;
@@ -1043,6 +1042,84 @@
 		status = "disabled";
 	};
 
+	qcom,msm-thermal {
+		compatible = "qcom,msm-thermal";
+		qcom,sensor-id = <3>;
+		qcom,poll-ms = <250>;
+		qcom,limit-temp = <60>;
+		qcom,temp-hysteresis = <10>;
+		qcom,freq-step = <2>;
+		qcom,vdd-restriction-temp = <5>;
+		qcom,vdd-restriction-temp-hysteresis = <10>;
+		vdd-dig-supply = <&pmd9650_s5_floor_level>;
+		qcom,disable-cx-phase-ctrl;
+		qcom,disable-gfx-phase-ctrl;
+		qcom,disable-vdd-mx;
+		qcom,disable-psm;
+		qcom,disable-ocr;
+
+		qcom,vdd-dig-rstr{
+			qcom,vdd-rstr-reg = "vdd-dig";
+			qcom,levels = <RPM_SMD_REGULATOR_LEVEL_NOM
+					RPM_SMD_REGULATOR_LEVEL_TURBO
+					RPM_SMD_REGULATOR_LEVEL_TURBO>;
+			qcom,min-level = <RPM_SMD_REGULATOR_LEVEL_RETENTION>;
+		};
+	};
+
+	qcom,sensor-information {
+		compatible = "qcom,sensor-information";
+		sensor_information0: qcom,sensor-information-0 {
+			qcom,sensor-type = "tsens";
+			qcom,sensor-name = "tsens_tz_sensor0";
+			qcom,scaling-factor = <10>;
+		};
+
+		sensor_information1: qcom,sensor-information-1 {
+			qcom,sensor-type =  "tsens";
+			qcom,sensor-name = "tsens_tz_sensor1";
+			qcom,scaling-factor = <10>;
+		};
+
+		sensor_information2: qcom,sensor-information-2 {
+			qcom,sensor-type =  "tsens";
+			qcom,sensor-name = "tsens_tz_sensor2";
+			qcom,scaling-factor = <10>;
+		};
+
+		sensor_information3: qcom,sensor-information-3 {
+			qcom,sensor-type = "tsens";
+			qcom,sensor-name = "tsens_tz_sensor3";
+			qcom,scaling-factor = <10>;
+		};
+
+		sensor_information4: qcom,sensor-information-4 {
+			qcom,sensor-type = "tsens";
+			qcom,sensor-name = "tsens_tz_sensor4";
+			qcom,alias-name = "modem";
+			qcom,scaling-factor = <10>;
+		};
+
+		sensor_information5: qcom,sensor-information-5 {
+			qcom,sensor-type = "adc";
+			qcom,sensor-name = "pa_therm0";
+		};
+
+		sensor_information6: qcom,sensor-information-6 {
+			qcom,sensor-type = "adc";
+			qcom,sensor-name = "pa_therm1";
+		};
+
+		sensor_information7: qcom,sensor-information-7 {
+			qcom,sensor-type = "adc";
+			qcom,sensor-name = "xo_therm";
+		};
+	};
+
+	mitigation_profile0: qcom,limit_info-0 {
+		qcom,temperature-sensor = <&sensor_information3>;
+	};
+
 	wcd9xxx_intc: wcd9xxx-irq {
 		compatible = "qcom,wcd9xxx-irq";
 		interrupt-controller;
@@ -1060,7 +1137,7 @@
 		#clock-cells = <1>;
 	};
 
-	snd_tasha: sound {
+	sound {
 		compatible = "qcom,mdm-audio-tasha";
 		qcom,model = "mdm-tasha-i2s-snd-card";
 
@@ -1094,81 +1171,10 @@
 			"SpkrRight IN", "SPK2 OUT";
 
 		qcom,tasha-mclk-clk-freq = <12288000>;
-
-		qcom,msm-gpios =
-			"pri_mi2s_aux_master",
-			"pri_mi2s_aux_slave",
-			"sec_mi2s_aux_master",
-			"sec_mi2s_aux_slave";
-		qcom,pinctrl-names =
-			"all_off",
-			"pri_mi2s_aux_master_active",
-			"pri_mi2s_aux_slave_active",
-			"invalid_state_1",
-			"sec_mi2s_aux_master_active",
-			"pri_master_active_sec_master_active",
-			"pri_slave_active_sec_master_active",
-			"invalid_state_2",
-			"sec_mi2s_aux_slave_active",
-			"pri_master_active_sec_slave_active",
-			"pri_slave_active_sec_slave_active";
-		pinctrl-names =
-			"all_off",
-			"pri_mi2s_aux_master_active",
-			"pri_mi2s_aux_slave_active",
-			"invalid_state_1",
-			"sec_mi2s_aux_master_active",
-			"pri_master_active_sec_master_active",
-			"pri_slave_active_sec_master_active",
-			"invalid_state_2",
-			"sec_mi2s_aux_slave_active",
-			"pri_master_active_sec_slave_active",
-			"pri_slave_active_sec_slave_active";
-		pinctrl-0 = <&pri_ws_sleep &pri_sck_sleep
-				&pri_dout_sleep &pri_din_sleep
-				&sec_ws_sleep &sec_sck_sleep
-				&sec_dout_sleep &sec_din_sleep>;
-		pinctrl-1 = <&pri_ws_active_master &pri_sck_active_master
-				&pri_dout_active &pri_din_active
-				&sec_ws_sleep &sec_sck_sleep
-				&sec_dout_sleep &sec_din_sleep>;
-		pinctrl-2 = <&pri_ws_active_slave &pri_sck_active_slave
-				&pri_dout_active &pri_din_active
-				&sec_ws_sleep &sec_sck_sleep
-				&sec_dout_sleep &sec_din_sleep>;
-		pinctrl-3 = <&pri_ws_sleep &pri_sck_sleep
-				&pri_dout_sleep &pri_din_sleep
-				&sec_ws_sleep &sec_sck_sleep
-				&sec_dout_sleep &sec_din_sleep>;
-		pinctrl-4 = <&pri_ws_sleep &pri_sck_sleep
-				&pri_dout_sleep &pri_din_sleep
-				&sec_ws_active_master &sec_sck_active_master
-				&sec_dout_active &sec_din_active>;
-		pinctrl-5 = <&pri_ws_active_master &pri_sck_active_master
-				&pri_dout_active &pri_din_active
-				&sec_ws_active_master &sec_sck_active_master
-				&sec_dout_active &sec_din_active>;
-		pinctrl-6 = <&pri_ws_active_slave &pri_sck_active_slave
-				&pri_dout_active &pri_din_active
-				&sec_ws_active_master &sec_sck_active_master
-				&sec_dout_active &sec_din_active>;
-		pinctrl-7 = <&pri_ws_sleep &pri_sck_sleep
-				&pri_dout_sleep &pri_din_sleep
-				&sec_ws_sleep &sec_sck_sleep
-				&sec_dout_sleep &sec_din_sleep>;
-		pinctrl-8 = <&pri_ws_sleep &pri_sck_sleep
-				&pri_dout_sleep &pri_din_sleep
-				&sec_ws_active_slave &sec_sck_active_slave
-				&sec_dout_active &sec_din_active>;
-		pinctrl-9 = <&pri_ws_active_master &pri_sck_active_master
-				&pri_dout_active &pri_din_active
-				&sec_ws_active_slave &sec_sck_active_slave
-				&sec_dout_active &sec_din_active>;
-		pinctrl-10 = <&pri_ws_active_slave &pri_sck_active_slave
-				&pri_dout_active &pri_din_active
-				&sec_ws_active_slave &sec_sck_active_slave
-				&sec_dout_active &sec_din_active>;
-
+		qcom,prim_mi2s_aux_master = <&prim_master>;
+		qcom,prim_mi2s_aux_slave = <&prim_slave>;
+		qcom,sec_mi2s_aux_master = <&sec_master>;
+		qcom,sec_mi2s_aux_slave = <&sec_slave>;
 		asoc-platform = <&pcm0>, <&pcm1>, <&voip>, <&voice>,
 				<&loopback>, <&hostless>, <&afe>, <&routing>,
 				<&pcm_dtmf>, <&host_pcm>, <&compress>;
@@ -1344,12 +1350,6 @@
 		compatible = "qcom,msm-pcm-dtmf";
 	};
 
-	cpu-pmu {
-		compatible = "arm,cortex-a7-pmu";
-		qcom,irq-is-percpu;
-		interrupts = <1 8 0x100>;
-	};
-
 	dai_pri_auxpcm: qcom,msm-pri-auxpcm {
 		compatible = "qcom,msm-auxpcm-dev";
 		qcom,msm-cpudai-auxpcm-mode = <0>, <0>;
@@ -1393,6 +1393,62 @@
 			qcom,msm-mi2s-tx-lines = <1>;
 		};
 
+	};
+
+	prim_master: prim_master_pinctrl {
+		compatible = "qcom,wcd-gpio-ctrl";
+		pinctrl-names = "aud_active", "aud_sleep";
+		pinctrl-0 = <&pri_ws_active_master
+				&pri_sck_active_master
+				&pri_dout_active
+				&pri_din_active>;
+		pinctrl-1 = <&pri_ws_sleep
+				&pri_sck_sleep
+				&pri_dout_sleep
+				&pri_din_sleep>;
+		qcom,mi2s-auxpcm-cdc-gpios;
+	};
+
+	prim_slave: prim_slave_pinctrl {
+		compatible = "qcom,wcd-gpio-ctrl";
+		pinctrl-names = "aud_active", "aud_sleep";
+		pinctrl-0 = <&pri_ws_active_slave
+				&pri_sck_active_slave
+				&pri_dout_active
+				&pri_din_active>;
+		pinctrl-1 = <&pri_ws_sleep
+				&pri_sck_sleep
+				&pri_dout_sleep
+				&pri_din_sleep>;
+		qcom,mi2s-auxpcm-cdc-gpios;
+	};
+
+	sec_master: sec_master_pinctrl {
+		compatible = "qcom,wcd-gpio-ctrl";
+		pinctrl-names = "aud_active", "aud_sleep";
+		pinctrl-0 = <&sec_ws_active_master
+				&sec_sck_active_master
+				&sec_dout_active
+				&sec_din_active>;
+		pinctrl-1 = <&sec_ws_sleep
+				&sec_sck_sleep
+				&sec_dout_sleep
+				&sec_din_sleep>;
+		qcom,mi2s-auxpcm-cdc-gpios;
+	};
+
+	sec_slave: sec_slave_pinctrl {
+		compatible = "qcom,wcd-gpio-ctrl";
+		pinctrl-names = "aud_active", "aud_sleep";
+		pinctrl-0 = <&sec_ws_active_slave
+				&sec_sck_active_slave
+				&sec_dout_active
+				&sec_din_active>;
+		pinctrl-1 = <&sec_ws_sleep
+				&sec_sck_sleep
+				&sec_dout_sleep
+				&sec_din_sleep>;
+		qcom,mi2s-auxpcm-cdc-gpios;
 	};
 
 	sdhc_1: sdhci@7824000 {

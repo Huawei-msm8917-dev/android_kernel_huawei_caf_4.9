@@ -1,4 +1,4 @@
-/* Copyright (c) 2017-2018, The Linux Foundation. All rights reserved.
+/* Copyright (c) 2017, The Linux Foundation. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 and
@@ -56,6 +56,7 @@
 	pps {
 		use-system-time-ts;
 	};
+
 };
 
 &cnss_pcie {
@@ -74,11 +75,35 @@
 	wcd9xxx_codec@d {
 		status = "disabled";
 	};
+
+	bmi160@68 {
+		compatible = "bosch-sensortec,bmi160";
+		reg = <0x68>;
+		pinctrl-names = "default";
+		pinctrl-0 = <&bmi160_int1_default &bmi160_int2_default>;
+		interrupt-parent = <&tlmm_pinmux>;
+		interrupts = <81 0x2002>;
+		bmi,init-interval = <200>;
+		bmi,place = <1>;
+		bmi,gpio_irq = <&tlmm_pinmux 81 0x2002>;
+	};
 };
 
 &spi_1 {
 	status = "ok";
 	/delete-property/ qcom,use-bam;
+
+	can-controller@0 {
+		compatible = "fsl,k61";
+		spi-max-frequency = <4800000>;
+		reg = <0>;
+		interrupt-parent = <&tlmm_pinmux>;
+		interrupts = <68 0>;
+		reset-gpio = <&tlmm_pinmux 89 GPIO_ACTIVE_LOW>;
+		pinctrl-names = "active", "sleep";
+		pinctrl-0 = <&can_rst_on>;
+		pinctrl-1 = <&can_rst_off>;
+	};
 };
 
 &spi_2 {
